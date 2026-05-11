@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GRUPO MARCOS RAMÍREZ — CRM Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700;9..144,800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+  :root {
+    --navy: #0B1F3F;
+    --navy-soft: #14305C;
+    --navy-line: #1E3A6A;
+    --gold: #C9A24B;
+    --gold-soft: #E5C77A;
+    --cream: #F8F4EC;
+    --bg: #FAFAF7;
+    --ink: #0E1320;
+    --muted: #6B7280;
+    --line: #E5E1D8;
+    --good: #2F855A;
+    --bad: #B91C1C;
+    --warn: #B45309;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { background: var(--bg); color: var(--ink); font-family: 'Inter', system-ui, sans-serif; font-size: 15px; line-height: 1.5; }
+  .wrap { max-width: 1240px; margin: 0 auto; padding: 32px 28px 80px; }
+
+  /* HEADER */
+  header { border-bottom: 1px solid var(--line); padding-bottom: 28px; margin-bottom: 36px; display: flex; align-items: flex-start; justify-content: space-between; gap: 24px; flex-wrap: wrap; }
+  .brand { display: flex; align-items: center; gap: 18px; }
+  .crest { width: 56px; height: 56px; border-radius: 50%; background: var(--navy); display: flex; align-items: center; justify-content: center; color: var(--gold); font-family: 'Fraunces', serif; font-weight: 700; font-size: 24px; letter-spacing: 0.02em; border: 2px solid var(--gold); }
+  h1 { font-family: 'Fraunces', serif; font-weight: 700; font-size: 28px; line-height: 1.15; color: var(--navy); letter-spacing: -0.01em; }
+  .sub { font-size: 13px; color: var(--muted); margin-top: 4px; letter-spacing: 0.04em; text-transform: uppercase; }
+  .meta { text-align: right; font-size: 13px; color: var(--muted); }
+  .meta strong { color: var(--navy); font-weight: 600; }
+  .slogan { font-family: 'Fraunces', serif; font-style: italic; color: var(--gold); margin-top: 6px; font-size: 14px; }
+
+  /* KPI CARDS */
+  .kpis { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 40px; }
+  .kpi { background: white; border: 1px solid var(--line); border-radius: 12px; padding: 22px 20px; position: relative; overflow: hidden; }
+  .kpi::before { content: ''; position: absolute; top: 0; left: 0; height: 3px; width: 100%; background: var(--gold); }
+  .kpi-label { font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+  .kpi-value { font-family: 'Fraunces', serif; font-size: 38px; font-weight: 600; color: var(--navy); margin-top: 8px; line-height: 1; letter-spacing: -0.02em; }
+  .kpi-delta { font-size: 12px; margin-top: 10px; color: var(--muted); }
+  .kpi-delta.bad { color: var(--bad); }
+  .kpi-delta.good { color: var(--good); }
+  .kpi-delta.warn { color: var(--warn); }
+
+  /* SECTIONS */
+  section { margin-bottom: 40px; }
+  h2 { font-family: 'Fraunces', serif; font-weight: 600; font-size: 22px; color: var(--navy); margin-bottom: 6px; letter-spacing: -0.01em; }
+  .section-sub { font-size: 13px; color: var(--muted); margin-bottom: 20px; }
+
+  /* GRID OF CHARTS */
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  .card { background: white; border: 1px solid var(--line); border-radius: 12px; padding: 24px; }
+  .card h3 { font-family: 'Fraunces', serif; font-weight: 600; font-size: 17px; color: var(--navy); margin-bottom: 16px; }
+  .chart-box { position: relative; height: 280px; }
+
+  /* TABLES */
+  table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  th { text-align: left; font-weight: 600; color: var(--muted); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; padding: 12px 10px; border-bottom: 2px solid var(--navy); }
+  td { padding: 14px 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  tr:last-child td { border-bottom: none; }
+  td.num { font-variant-numeric: tabular-nums; text-align: right; }
+  td .name { font-weight: 600; color: var(--navy); }
+  td .meta-text { font-size: 12px; color: var(--muted); margin-top: 2px; }
+  .pill { display: inline-block; padding: 3px 10px; border-radius: 999px; font-size: 11px; font-weight: 600; letter-spacing: 0.03em; }
+  .pill.danger { background: #FEE2E2; color: var(--bad); }
+  .pill.warn { background: #FEF3C7; color: var(--warn); }
+  .pill.ok { background: #DCFCE7; color: var(--good); }
+  .pill.neutral { background: #E5E7EB; color: #374151; }
+  .pill.gold { background: #FAF1DC; color: #8A6A1F; border: 1px solid #E5C77A; }
+
+  /* ALERT BANNER */
+  .alert { background: linear-gradient(90deg, #FEF3C7 0%, #FFFBEB 100%); border-left: 4px solid var(--warn); padding: 14px 18px; border-radius: 6px; margin-bottom: 32px; font-size: 14px; color: #78350F; }
+  .alert strong { color: var(--warn); }
+
+  footer { margin-top: 60px; padding-top: 24px; border-top: 1px solid var(--line); text-align: center; font-size: 12px; color: var(--muted); letter-spacing: 0.05em; }
+  footer strong { color: var(--navy); }
+
+  @media (max-width: 860px) {
+    .kpis { grid-template-columns: repeat(2, 1fr); }
+    .grid-2 { grid-template-columns: 1fr; }
+    h1 { font-size: 24px; }
+    .kpi-value { font-size: 32px; }
+    header { flex-direction: column; }
+    .meta { text-align: left; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- HEADER -->
+  <header>
+    <div class="brand">
+      <div class="crest">M</div>
+      <div>
+        <h1>GRUPO MARCOS RAMÍREZ</h1>
+        <div class="sub">La Familia del Sombrero · CRM Dashboard</div>
+        <div class="slogan">"Nosotros hacemos que pase."</div>
+      </div>
+    </div>
+    <div class="meta">
+      <div><strong>Fecha:</strong> Lunes, 11 de mayo 2026</div>
+      <div><strong>Fuente:</strong> GoHighLevel · Live</div>
+      <div><strong>Location:</strong> yD2XjjNpRFc5cJaemJwo</div>
+    </div>
+  </header>
+
+  <!-- ALERT -->
+  <div class="alert">
+    ⚠️ <strong>Atención:</strong> Las 18 oportunidades abiertas tienen <strong>monetaryValue = $0</strong>. Asigna montos para activar el reporte de pipeline financiero.
+  </div>
+
+  <!-- KPIs -->
+  <div class="kpis">
+    <div class="kpi">
+      <div class="kpi-label">Oportunidades Abiertas</div>
+      <div class="kpi-value">18</div>
+      <div class="kpi-delta">distribuidas en 4 pipelines activos</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label">Leads Nuevos (24h)</div>
+      <div class="kpi-value">5</div>
+      <div class="kpi-delta good">4 vía Calendly · 1 vía PHX Training</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label">Estancadas +30 días</div>
+      <div class="kpi-value">2</div>
+      <div class="kpi-delta bad">requieren contacto inmediato</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label">Cobros del día</div>
+      <div class="kpi-value">$0</div>
+      <div class="kpi-delta">0 transacciones en GHL Payments</div>
+    </div>
+  </div>
+
+  <!-- CHARTS -->
+  <section>
+    <h2>Distribución del Pipeline</h2>
+    <div class="section-sub">Oportunidades abiertas por pipeline y antigüedad sin movimiento.</div>
+    <div class="grid-2">
+      <div class="card">
+        <h3>Oportunidades por Pipeline</h3>
+        <div class="chart-box"><canvas id="pipelineChart"></canvas></div>
+      </div>
+      <div class="card">
+        <h3>Antigüedad sin movimiento (días)</h3>
+        <div class="chart-box"><canvas id="ageChart"></canvas></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- STAGE BREAKDOWN -->
+  <section>
+    <h2>Detalle por Pipeline y Etapa</h2>
+    <div class="section-sub">Conteo de oportunidades activas en cada etapa del embudo.</div>
+    <div class="card">
+      <table>
+        <thead>
+          <tr><th>Pipeline</th><th>Etapa</th><th class="num">Oportunidades</th><th class="num">% del Total</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><span class="name">VIP 30-50-100</span></td><td>Clientes</td><td class="num">10</td><td class="num">55.6%</td></tr>
+          <tr><td><span class="name">EL CONTADOR DEL SOMBRERO</span></td><td>TAX ADVISORY PACKAGE</td><td class="num">4</td><td class="num">22.2%</td></tr>
+          <tr><td><span class="name">EL CONTADOR DEL SOMBRERO</span></td><td>P&L READY</td><td class="num">2</td><td class="num">11.1%</td></tr>
+          <tr><td><span class="name">PHX Training</span></td><td>New Lead</td><td class="num">1</td><td class="num">5.6%</td></tr>
+          <tr><td><span class="name">MADI TAX ADVISORS LLC</span></td><td>New Lead</td><td class="num">1</td><td class="num">5.6%</td></tr>
+          <tr style="background: var(--cream); font-weight: 600;"><td colspan="2"><span class="name">Total</span></td><td class="num">18</td><td class="num">100.0%</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- STALE -->
+  <section>
+    <h2>⚠️ Oportunidades Estancadas</h2>
+    <div class="section-sub">Sin cambio de etapa en 10+ días. Las marcadas en rojo llevan más de 30 días.</div>
+    <div class="card">
+      <table>
+        <thead>
+          <tr><th>Contacto</th><th>Empresa</th><th>Pipeline / Etapa</th><th class="num">Días</th><th>Estado</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><span class="name">LEOPOLDO OCHOA</span><div class="meta-text">danaik@alsteelroofing.com</div></td><td>—</td><td>EL CONTADOR · TAX ADVISORY</td><td class="num">33</td><td><span class="pill danger">CRÍTICO</span></td></tr>
+          <tr><td><span class="name">Carlos Sanchez</span><div class="meta-text">carlos@naunlimited.com</div></td><td>—</td><td>EL CONTADOR · TAX ADVISORY</td><td class="num">31</td><td><span class="pill danger">CRÍTICO</span></td></tr>
+          <tr><td><span class="name">Ana Molina</span><div class="meta-text">aandaelectric806@gmail.com</div></td><td>—</td><td>MADI · New Lead</td><td class="num">17</td><td><span class="pill warn">SEGUIMIENTO</span></td></tr>
+          <tr><td><span class="name">Aurelio Alvarado</span><div class="meta-text">aflooring05@gmail.com</div></td><td>Design Custom Hardwood Floors</td><td>EL CONTADOR · TAX ADVISORY</td><td class="num">14</td><td><span class="pill warn">SEGUIMIENTO</span></td></tr>
+          <tr><td><span class="name">Beni Sandoval</span><div class="meta-text">beni@acreliablellc.com</div></td><td>AC Reliable LLC</td><td>EL CONTADOR · TAX ADVISORY</td><td class="num">10</td><td><span class="pill warn">SEGUIMIENTO</span></td></tr>
+          <tr><td><span class="name">LINDA PORRAS</span><div class="meta-text">lporras30@yahoo.com</div></td><td>LMN Transport LLC</td><td>EL CONTADOR · P&L READY</td><td class="num">10</td><td><span class="pill warn">SEGUIMIENTO</span></td></tr>
+          <tr><td><span class="name">ROSY MUNOZ</span><div class="meta-text">512losadobes@gmail.com</div></td><td>—</td><td>EL CONTADOR · P&L READY</td><td class="num">10</td><td><span class="pill warn">SEGUIMIENTO</span></td></tr>
+          <tr><td colspan="3"><span class="name">+ 10 oportunidades VIP 30-50-100</span><div class="meta-text">Ivette Hermosillo · Hillary Berrio · Eliut Garcia · Daniel Rodriguez · Andres Cepeda · Guadalupe Quezada · Imelda Sanchez · Arilene Carrasco · David Palafox · Linda Porras</div></td><td class="num">11</td><td><span class="pill warn">SEGUIMIENTO</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- NEW LEADS -->
+  <section>
+    <h2>Leads Nuevos (últimas 24 horas)</h2>
+    <div class="section-sub">5 contactos creados desde el 10 de mayo. 4 vienen de Calendly — listos para calificar.</div>
+    <div class="card">
+      <table>
+        <thead>
+          <tr><th>Nombre</th><th>Email</th><th>Teléfono</th><th>Fuente</th><th>Tag</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><span class="name">John Rivas</span></td><td>johnrivas267@gmail.com</td><td>+1 (915) 491-2282</td><td>Manual / Test</td><td><span class="pill gold">phoenix training</span></td></tr>
+          <tr><td><span class="name">Anna Lopez</span></td><td>solcounselingandwellness@gmail.com</td><td>+1 (575) 544-5026</td><td>Calendly</td><td><span class="pill neutral">—</span></td></tr>
+          <tr><td><span class="name">Martin Mara</span></td><td>insightair@outlook.com</td><td>+1 (972) 741-4139</td><td>Calendly</td><td><span class="pill neutral">—</span></td></tr>
+          <tr><td><span class="name">Dora Rojas</span></td><td>dorarojas3@outlook.com</td><td>+1 (706) 968-0890</td><td>Calendly</td><td><span class="pill neutral">—</span></td></tr>
+          <tr><td><span class="name">Robert Mares</span></td><td>robertmarestaxout@gmail.com</td><td>+1 (575) 270-4274</td><td>Calendly</td><td><span class="pill neutral">—</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ACTIONS -->
+  <section>
+    <h2>Acciones recomendadas para HOY</h2>
+    <div class="card">
+      <table>
+        <thead>
+          <tr><th class="num" style="width:50px;">#</th><th>Acción</th><th>Prioridad</th></tr>
+        </thead>
+        <tbody>
+          <tr><td class="num">1</td><td>Llamar a <strong>LEOPOLDO OCHOA</strong> y <strong>Carlos Sanchez</strong> — +30 días sin movimiento</td><td><span class="pill danger">ALTA</span></td></tr>
+          <tr><td class="num">2</td><td>Asignar <strong>monetaryValue</strong> a las 18 oportunidades para reportes financieros reales</td><td><span class="pill warn">MEDIA</span></td></tr>
+          <tr><td class="num">3</td><td>Mover las 10 oportunidades de <strong>VIP 30-50-100</strong> — estancadas desde el 30 abril</td><td><span class="pill warn">MEDIA</span></td></tr>
+          <tr><td class="num">4</td><td>Contactar los 4 leads de Calendly — calificar (income, estructura)</td><td><span class="pill ok">RUTINA</span></td></tr>
+          <tr><td class="num">5</td><td>Activar scope <strong>Conversations</strong> del MCP para incluir mensajes sin responder</td><td><span class="pill neutral">SETUP</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <footer>
+    <strong>GRUPO MARCOS RAMÍREZ · La Familia del Sombrero</strong><br>
+    Dashboard generado automáticamente desde GoHighLevel · Refresco diario
+  </footer>
+
+</div>
+
+<script>
+  Chart.defaults.font.family = "'Inter', system-ui, sans-serif";
+  Chart.defaults.color = '#6B7280';
+
+  // Pipeline distribution
+  new Chart(document.getElementById('pipelineChart'), {
+    type: 'bar',
+    data: {
+      labels: ['VIP 30-50-100', 'EL CONTADOR\ndel SOMBRERO', 'PHX Training', 'MADI TAX'],
+      datasets: [{
+        label: 'Oportunidades abiertas',
+        data: [10, 6, 1, 1],
+        backgroundColor: ['#0B1F3F', '#C9A24B', '#14305C', '#E5C77A'],
+        borderRadius: 6,
+        barThickness: 38
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        y: { beginAtZero: true, grid: { color: '#F0EBE0' }, ticks: { stepSize: 2 } },
+        x: { grid: { display: false } }
+      }
+    }
+  });
+
+  // Age distribution
+  new Chart(document.getElementById('ageChart'), {
+    type: 'doughnut',
+    data: {
+      labels: ['0-7 días (frescas)', '8-14 días', '15-30 días', '+30 días (críticas)'],
+      datasets: [{
+        data: [1, 13, 1, 2],
+        backgroundColor: ['#2F855A', '#C9A24B', '#B45309', '#B91C1C'],
+        borderWidth: 2,
+        borderColor: '#FFFFFF'
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      cutout: '62%',
+      plugins: {
+        legend: { position: 'bottom', labels: { padding: 14, font: { size: 12 }, usePointStyle: true } }
+      }
+    }
+  });
+</script>
+
+</body>
+</html>
